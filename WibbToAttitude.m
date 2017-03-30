@@ -1,34 +1,34 @@
-%ÔØÌå²»×öÎ»ÒÆ£¬Í¨¹ıÍÓÂİÒÇ²âÁ¿Öµ½âËã×ËÌ¬½Ç
+%è½½ä½“ä¸åšä½ç§»ï¼Œé€šè¿‡é™€èºä»ªæµ‹é‡å€¼è§£ç®—å§¿æ€è§’
 %20170309 Salamander
-%³ÌĞò¼ÆËãÖĞËùÓĞ½Ç¶ÈÒ»ÂÉÊ¹ÓÃ»¡¶ÈÎªµ¥Î»£¬Ö»ÔÚÊäÈëÊä³ö½×¶ÎÉæ¼°¶ÈÓë»¡¶È×ª»»
-%20170316 ÒıÈëËÄÔªÊı´¦Àí,Ê¹ÓÃfscanf°´ĞĞ¶ÁÈëÊı¾İ¶ø²»ÊÇÒ»´ÎĞÔÈ«²¿¶ÁÈë£¬Ä£ÄâÊµ»úÔËĞĞÇé¿ö
-%20170322 ¿ªÊ¼´¦Àí¾­Î³¶ÈÓë¶«Ïò±±ÏòËÙ¶È
-%20170329 ¿ªÊ¼´¦Àí¸ß¶ÈÍ¨µÀ
+%ç¨‹åºè®¡ç®—ä¸­æ‰€æœ‰è§’åº¦ä¸€å¾‹ä½¿ç”¨å¼§åº¦ä¸ºå•ä½ï¼Œåªåœ¨è¾“å…¥è¾“å‡ºé˜¶æ®µæ¶‰åŠåº¦ä¸å¼§åº¦è½¬æ¢
+%20170316 å¼•å…¥å››å…ƒæ•°å¤„ç†,ä½¿ç”¨fscanfæŒ‰è¡Œè¯»å…¥æ•°æ®è€Œä¸æ˜¯ä¸€æ¬¡æ€§å…¨éƒ¨è¯»å…¥ï¼Œæ¨¡æ‹Ÿå®æœºè¿è¡Œæƒ…å†µ
+%20170322 ä½¿ç”¨åŠ é€Ÿåº¦è®¡æ•°æ®ï¼Œè½½ä½“ä¸å†æ˜¯é™æ­¢ï¼Œå¼€å§‹å¤„ç†ç»çº¬åº¦ä¸ä¸œå‘åŒ—å‘é€Ÿåº¦
+%20170329 å¼€å§‹å¤„ç†é«˜åº¦é€šé“
 clc
 clear
 
-%% Ô¤ÖÃ¹Ì¶¨²ÎÊı
+%% é¢„ç½®å›ºå®šå‚æ•°
 Re=6378137.0;
 f=1.0/298.257;
 wiee=[  0;
         0;
         7.2722e-5];
 
-%% ³õÊ¼Öµ
+%% åˆå§‹å€¼
 AttitudeIni=[89.850004;1.9113951;1.0572407]*pi/180;
 lati=39.813330*pi/180;
 longti=116.15326*pi/180;
 h=70.0;
 vn=[0;0;0];
-vu=0;%¸ß¶ÈÍ¨µÀµ¥¶À³õÊ¼»¯
+vu=0;%é«˜åº¦é€šé“å•ç‹¬åˆå§‹åŒ–
 g=AccuG(lati,h);
 
 
-fileID = fopen('E:\Documents\¹ßµ¼ÊµÑé\data20110913\imu_ENU.txt','r');
+fileID = fopen('E:\Documents\æƒ¯å¯¼å®éªŒ\data20110913\imu_ENU.txt','r');
 formatSpec = '%f%f%f%f%f%f%f%[^\n\r]';
 [IMUSource,FlagRead]=fscanf(fileID,formatSpec);
 if FlagRead~=7
-    disp('Êı¾İ¶ÁÈ¡Ê§°Ü')
+    disp('æ•°æ®è¯»å–å¤±è´¥')
     stop
 end
 wibb=[IMUSource(5);IMUSource(6);IMUSource(7)];
@@ -37,48 +37,48 @@ ResOffer=zeros(nepoch,10);
 ResOffer=mat2dataset(ResOffer,'VarNames',{'time','psi','theta','gama','ve','vn','vu','lati','longti','h'});
 
 DeltaT=0.01;
-DeltaTOfTbn=2;%Tbn¾ØÕó¼´×ËÌ¬µÄ¸üĞÂÖÜÆÚ=DeltaTOfTbn*DeltaT Ê¹ÓÃËÄ½×Áú¸ñ¿âËş·¨£¬ËùÒÔ´Ë´¦×ËÌ¬Êı¾İµÄ¸üĞÂÖÜÆÚÊÇÍÓÂİÒÇÊä³öÖÜÆÚµÄ2±¶
-DeltaTOfV=10;%Ã¿¼ä¸ôDeltaTOfV¸ö²ÉÑù¼ä¸ô¸üĞÂÒ»´Î¶«Ïò±±ÏòËÙ¶È
-DeltaTOfNoQ=10;%Ã¿¸ôDeltaTOfNoQ¸ö²ÉÑù¼ä¸ô¹éÒ»»¯Ò»´ÎËÄÔªÊı
-DeltaTOfPo=50;%Ã¿¸ôDeltaTOfPo¸ö²ÉÑù¼ä¸ô½âËãÒ»´ÎÎ»ÖÃ
-DeltaTOfH=50;%Ã¿¸ôDeltaTOfH¸ö²ÉÑù¼ä¸ô¸üĞÂÒ»´Î¸ß¶ÈÓëÌìÏòËÙ¶È
+DeltaTOfTbn=2;%TbnçŸ©é˜µå³å§¿æ€çš„æ›´æ–°å‘¨æœŸ=DeltaTOfTbn*DeltaT ä½¿ç”¨å››é˜¶é¾™æ ¼åº“å¡”æ³•ï¼Œæ‰€ä»¥æ­¤å¤„å§¿æ€æ•°æ®çš„æ›´æ–°å‘¨æœŸæ˜¯é™€èºä»ªè¾“å‡ºå‘¨æœŸçš„2å€
+DeltaTOfV=10;%æ¯é—´éš”DeltaTOfVä¸ªé‡‡æ ·é—´éš”æ›´æ–°ä¸€æ¬¡ä¸œå‘åŒ—å‘é€Ÿåº¦
+DeltaTOfNoQ=10;%æ¯éš”DeltaTOfNoQä¸ªé‡‡æ ·é—´éš”å½’ä¸€åŒ–ä¸€æ¬¡å››å…ƒæ•°
+DeltaTOfPo=50;%æ¯éš”DeltaTOfPoä¸ªé‡‡æ ·é—´éš”è§£ç®—ä¸€æ¬¡ä½ç½®
+DeltaTOfH=50;%æ¯éš”DeltaTOfHä¸ªé‡‡æ ·é—´éš”æ›´æ–°ä¸€æ¬¡é«˜åº¦ä¸å¤©å‘é€Ÿåº¦
 FlagMiddleRefresh=0;
-K_two=0.01;%¸ß¶ÈÍ¨µÀ¶ş½××èÄá»ØÂ·ÏµÊı
-K_one=1;%¸ß¶ÈÍ¨µÀ¶ş½××èÄá»ØÂ·ÏµÊı
-high_c=importHighfile('E:\Documents\¹ßµ¼ÊµÑé\data20110913\high.txt');%Íâ²¿¸ß¶ÈĞÅÏ¢ÓÃÓÚÊµÏÖ¸ß¶È×èÄá
+K_two=0.5;%é«˜åº¦é€šé“äºŒé˜¶é˜»å°¼å›è·¯ç³»æ•°
+K_one=1;%é«˜åº¦é€šé“äºŒé˜¶é˜»å°¼å›è·¯ç³»æ•°
+high_c=importHighfile('E:\Documents\æƒ¯å¯¼å®éªŒ\data20110913\high.txt');%å¤–éƒ¨é«˜åº¦ä¿¡æ¯ç”¨äºå®ç°é«˜åº¦é˜»å°¼
 
-%% ¼ÆËã³õÊ¼winb wnbb Tbn
+%% è®¡ç®—åˆå§‹winb wnbb Tbn
 
-%Çówenb
+%æ±‚wenb
 Rm=Re*(1-2*f+3*f*(sin(lati))^2);
 Rn=Re*(1+f*(sin(lati))^2);
 wenn=[  -vn(2)/(Rm+h);
         vn(1)/(Rm+h);
         vn(1)*tan(lati)/(Rn+h)];
-[Tbn,FlagFunc]=AttiToTbn(AttitudeIni);%ÓÉbµ½nµÄ×ª»»¾ØÕó£¬bÎªÏÂ±ênÎªÉÏ±ê
-[Q,FlagFun]=AttiToQuater(AttitudeIni);%ÓÉ×ËÌ¬½Ç¼ÆËãËÄÔªÊıQ
+[Tbn,FlagFunc]=AttiToTbn(AttitudeIni);%ç”±båˆ°nçš„è½¬æ¢çŸ©é˜µï¼Œbä¸ºä¸‹æ ‡nä¸ºä¸Šæ ‡
+[Q,FlagFun]=AttiToQuater(AttitudeIni);%ç”±å§¿æ€è§’è®¡ç®—å››å…ƒæ•°Q
 if FlagFunc~=0
     stop
 end
 wenb=Tbn'*wenn;
-%Çówieb
+%æ±‚wieb
 Cen=LatiLongtiToCen(lati,longti);
 DotCen=WennToDotCen(wenn,Cen);
 wien=Cen*wiee;
 wieb=Tbn'*wien;
-%Çówinb
+%æ±‚winb
 winb=wieb+wenb;
 wnbb_pre=wibb-winb;
-%Çó³õÊ¼µ¼º½ÏµÏÂµÄ¼ÓËÙ¶ÈDotVn_pre
+%æ±‚åˆå§‹å¯¼èˆªç³»ä¸‹çš„åŠ é€Ÿåº¦DotVn_pre
 fb_ini=[IMUSource(2);IMUSource(3);IMUSource(4)];
 fn_ini=Tbn*fb_ini;
-DotVn=fn_ini-cross(2*wien+wenn,vn)+[0;0;-g];%´Ë´¦gÖ®Ç°ÊÇ·ñÓ¦µ±¼Ó¸ººÅ£¿
-DotVu=DotVn(3);%¸ß¶ÈÍ¨µÀµ¥¶À³õÊ¼»¯
-%% ¿ªÊ¼¶ÁÈ¡¹Û²â
+DotVn=fn_ini-cross(2*wien+wenn,vn)+[0;0;-g];%æ­¤å¤„gä¹‹å‰æ˜¯å¦åº”å½“åŠ è´Ÿå·ï¼Ÿ
+DotVu=DotVn(3);%é«˜åº¦é€šé“å•ç‹¬åˆå§‹åŒ–
+%% å¼€å§‹è¯»å–è§‚æµ‹
 for i=1:nepoch
     [IMUSource,FlagRead]=fscanf(fileID,formatSpec);
     if FlagRead~=7
-        info=sprintf('%s%d','Êı¾İ¶ÁÈ¡Ê§°Ü»ò¶Áµ½ÎÄ¼şÎ²£¬½áÊøÑ­»·£¬ÒÑ¶ÁÈ¡ĞĞÊı£º',i);
+        info=sprintf('%s%d','æ•°æ®è¯»å–å¤±è´¥æˆ–è¯»åˆ°æ–‡ä»¶å°¾ï¼Œç»“æŸå¾ªç¯ï¼Œå·²è¯»å–è¡Œæ•°ï¼š',i);
         disp(info)
         fclose(fileID);
         break
@@ -86,30 +86,30 @@ for i=1:nepoch
     wibb=[IMUSource(5);IMUSource(6);IMUSource(7)];
     fb=[IMUSource(2);IMUSource(3);IMUSource(4)];
     ResOffer.time(i)=IMUSource(1);
-    %% ¸üĞÂ×ËÌ¬
+    %% æ›´æ–°å§¿æ€
     
     if mod(ResOffer.time(i),DeltaTOfTbn)~=0
         wnbb_middle=wibb-winb;
         FlagMiddleRefresh=1;
     elseif FlagMiddleRefresh==1
         wnbb_now=wibb-winb;
-        %ËÄ½×Áú¸ç¿âËşÇóËÄÔªÊıQ
+        %å››é˜¶é¾™å“¥åº“å¡”æ±‚å››å…ƒæ•°Q
         K1=WnbbToDotQ(wnbb_pre,Q);
         K2=WnbbToDotQ(wnbb_middle,Q+K1*DeltaT*DeltaTOfTbn/2);
         K3=WnbbToDotQ(wnbb_middle,Q+K2*DeltaT*DeltaTOfTbn/2);
         K4=WnbbToDotQ(wnbb_now,Q+K3*DeltaT*DeltaTOfTbn);
         Q=Q+DeltaT*DeltaTOfTbn*(K1+2*K2+2*K3+K4)/6;
-        %ËÄÔªÊı¹éÒ»»¯
+        %å››å…ƒæ•°å½’ä¸€åŒ–
         if mod(ResOffer.time(i),DeltaTOfNoQ)==0
             Q=Q/norm(Q);
         end
 
-        %ÓÉËÄÔªÊı¼ÆËãTbn
+        %ç”±å››å…ƒæ•°è®¡ç®—Tbn
         Tbn=QToTbn(Q);
-        %Êä³ö×ËÌ¬½Ç
+        %è¾“å‡ºå§¿æ€è§’
         [ResOffer.psi(i),ResOffer.theta(i),ResOffer.gama(i),FlagFunc]=TbnToAttitude(Tbn);
         if FlagFunc~=0
-            disp('Tbn¾ØÕó²»¿É¿¿£¬×ËÌ¬½ÇÎ´¸üĞÂ')  
+            disp('TbnçŸ©é˜µä¸å¯é ï¼Œå§¿æ€è§’æœªæ›´æ–°')  
             if(i<=DeltaTOfTbn)
                 ResOffer(i,2:4)=AttitudeIni;
             else
@@ -118,19 +118,19 @@ for i=1:nepoch
         end
         fn=Tbn*fb;
     end
-    %% ¸üĞÂËÙ¶È
+    %% æ›´æ–°é€Ÿåº¦
     
     if mod(ResOffer.time(i),DeltaTOfV)==0
 
 
-        %¶ş½×Áú¸ñ¿âËş·¨¸üĞÂËÙ¶È
+        %äºŒé˜¶é¾™æ ¼åº“å¡”æ³•æ›´æ–°é€Ÿåº¦
         K1=DotVn;
         wenn=[  -(vn(2)+K1(2)*DeltaTOfV*DeltaT)/(Rm+h);
         (vn(1)+K1(1)*DeltaTOfV*DeltaT)/(Rm+h);
         (vn(1)+K1(1)*DeltaTOfV*DeltaT)*tan(lati)/(Rn+h)];
         K2=fn-cross(2*wien+wenn,vn+K1*DeltaTOfV*DeltaT)+[0;0;-g];
         vn=vn+(K1+K2)*DeltaTOfV*DeltaT/2;
-        %¸üĞÂÊı¾İ
+        %æ›´æ–°æ•°æ®
         wenn=[  -vn(2)/(Rm+h);
                 vn(1)/(Rm+h);
                 vn(1)*tan(lati)/(Rn+h)];
@@ -139,13 +139,13 @@ for i=1:nepoch
         ResOffer.vn(i)=vn(2);
 
     end
-    %% ¸üĞÂ¾­Î³¶È
+    %% æ›´æ–°ç»çº¬åº¦
     
     if mod(ResOffer.time(i),DeltaTOfPo)==0
         Cen=Cen+DeltaTOfPo*DeltaT*DotCen;
         DotCen=WennToDotCen(wenn,Cen);
         [lati,longti]=CenToLaLon(Cen);
-        %¸üĞÂÆäËûÊı¾İ
+        %æ›´æ–°å…¶ä»–æ•°æ®
         Rm=Re*(1-2*f+3*f*(sin(lati))^2);
         Rn=Re*(1+f*(sin(lati))^2);
         wenn=[  -vn(2)/(Rm+h);
@@ -157,31 +157,34 @@ for i=1:nepoch
         
     end
         
-    %% ¸üĞÂwnbb_pre
+    %% æ›´æ–°wnbb_pre
     if mod(ResOffer.time(i),DeltaTOfTbn)==0&&FlagMiddleRefresh==1
         winb=Tbn'*(wien+wenn);
         wnbb_pre=wibb-winb;
         FlagMiddleRefresh=0;
     end
     
-    %% ¸üĞÂ¸ß¶ÈÍ¨µÀ
+    %% æ›´æ–°é«˜åº¦é€šé“
     if mod(ResOffer.time(i),DeltaTOfH)==0
         index_hc=find(high_c.time==ResOffer.time(i));
         if size(index_hc)==1
             hc=high_c.h(index_hc);
-            %Ò»½×Å·À­·¨¸üĞÂ¸ß¶È
+            %ä¸€é˜¶æ¬§æ‹‰æ³•æ›´æ–°é«˜åº¦ï¼ŒK_one*(h-hc)ä½œä¸ºvuçš„é˜»å°¼
             h=h+(vu-K_one*(h-hc))*DeltaTOfH*DeltaT;
+            %ä¸€é˜¶æ¬§æ‹‰æ³•æ›´æ–°å¤©å‘é€Ÿåº¦ï¼ŒK_two*(h-hc)ä½œä¸ºå¤©å‘åŠ é€Ÿåº¦DotVuçš„é˜»å°¼
             ResOffer.h(i)=h;
             vu=vu+(DotVu-K_two*(h-hc))*DeltaTOfH*DeltaT;
             ResOffer.vu(i)=vu;
+            %æ›´æ–°DotVuä¾›ä¸‹ä¸€æ¬¡é«˜åº¦é€šé“è§£ç®—ä½¿ç”¨
             DotVu=fn(3)+(2*wien(2)+wenn(2))*vn(1)-(2*wien(1)+wenn(1))*vn(2)-AccuG(lati,h);
+            %æ›´æ–°çŸ©é˜µvnã€DotVnä¸­å¯¹åº”çš„é«˜åº¦é€šé“çš„ç»“æœï¼Œä¾›ç¨‹åºå…¶ä»–éƒ¨åˆ†ä½¿ç”¨
             vn(3)=vu;
             DotVn(3)=DotVu;
-            %´Ë´¦Èôsize(index_hc)==1²»³ÉÁ¢£¬ÔòÏÂ´ÎÊıÖµ»ı·ÖÊ±ÆäÊµ²½³¤¾Í²»ÔÙÊÇDeltaTOfH*DeltaT£¬Ó¦µ±ÀÛ¼Ó£¬´Ë´¦ÔİÇÒ²»¿¼ÂÇ¸ÃÇé¿ö
+            %æ­¤å¤„è‹¥size(index_hc)==1ä¸æˆç«‹ï¼Œåˆ™ä¸‹æ¬¡ä¸€é˜¶æ¬§æ‹‰æ³•æ•°å€¼ç§¯åˆ†æ—¶å…¶å®æ­¥é•¿å°±ä¸å†æ˜¯DeltaTOfH*DeltaTï¼Œåº”å½“ç´¯åŠ ï¼Œæ­¤å¤„æš‚ä¸”ä¸è€ƒè™‘è¯¥æƒ…å†µ
         end
     end
 end
-%Êä³ö½Ç¶ÈÒÔ¶ÈÎªµ¥Î»    
+%è¾“å‡ºè§’åº¦ä»¥åº¦ä¸ºå•ä½    
 ResOffer.psi=ResOffer.psi*180/pi;
 ResOffer.theta=ResOffer.theta*180/pi;
 ResOffer.gama=ResOffer.gama*180/pi;
@@ -189,8 +192,8 @@ ResOffer.lati=ResOffer.lati*180/pi;
 ResOffer.longti=ResOffer.longti*180/pi;
 save('ResOfWibbToAttitude','ResOffer');
 
-%% ±È¶Ô³ÌĞòWibbToAttitude¼ÆËãµÃµ½µÄ½á¹ûÓëins_c.txtÖĞµÄ²Î¿¼×ËÌ¬Êı¾İ
-INSSource=imporINSCtfile('E:\Documents\¹ßµ¼ÊµÑé\data20110913\ins_c.txt');
+%% æ¯”å¯¹ç¨‹åºWibbToAttitudeè®¡ç®—å¾—åˆ°çš„ç»“æœä¸ins_c.txtä¸­çš„å‚è€ƒå§¿æ€æ•°æ®
+INSSource=imporINSCtfile('E:\Documents\æƒ¯å¯¼å®éªŒ\data20110913\ins_c.txt');
 index=(ResOffer.psi~=0);
 subplot(3,3,1)
 plot(ResOffer.time(index),ResOffer.psi(index),'.');
