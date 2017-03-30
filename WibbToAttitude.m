@@ -3,6 +3,7 @@
 %程序计算中所有角度一律使用弧度为单位，只在输入输出阶段涉及度与弧度转换
 %20170316 引入四元数处理,使用fscanf按行读入数据而不是一次性全部读入，模拟实机运行情况
 %20170322 开始处理经纬度与东向北向速度
+%20170329 开始处理高度通道
 clc
 clear
 
@@ -19,7 +20,9 @@ lati=39.813330*pi/180;
 longti=116.15326*pi/180;
 h=70.0;
 vn=[0;0;0];
+vu=0;%高度通道单独初始化
 g=AccuG(lati,h);
+
 
 fileID = fopen('E:\Documents\惯导实验\data20110913\imu_ENU.txt','r');
 formatSpec = '%f%f%f%f%f%f%f%[^\n\r]';
@@ -35,11 +38,14 @@ ResOffer=mat2dataset(ResOffer,'VarNames',{'time','psi','theta','gama','ve','vn',
 
 DeltaT=0.01;
 DeltaTOfTbn=2;%Tbn矩阵即姿态的更新周期=DeltaTOfTbn*DeltaT 使用四阶龙格库塔法，所以此处姿态数据的更新周期是陀螺仪输出周期的2倍
-DeltaTOfV=10;%每间隔DeltaTOfV个采样间隔更新一次速度
+DeltaTOfV=10;%每间隔DeltaTOfV个采样间隔更新一次东向北向速度
 DeltaTOfNoQ=10;%每隔DeltaTOfNoQ个采样间隔归一化一次四元数
 DeltaTOfPo=50;%每隔DeltaTOfPo个采样间隔解算一次位置
+DeltaTOfH=50;%每隔DeltaTOfH个采样间隔更新一次高度与天向速度
 FlagMiddleRefresh=0;
-
+K_two=0.01;%高度通道二阶阻尼回路系数
+K_one=1;%高度通道二阶阻尼回路系数
+high_c=importHighfile('E:\Documents\惯导实验\data20110913\high.txt');%外部高度信息用于实现高度阻尼
 
 %% 计算初始winb wnbb Tbn
 
@@ -67,6 +73,7 @@ wnbb_pre=wibb-winb;
 fb_ini=[IMUSource(2);IMUSource(3);IMUSource(4)];
 fn_ini=Tbn*fb_ini;
 DotVn=fn_ini-cross(2*wien+wenn,vn)+[0;0;-g];%此处g之前是否应当加负号？
+DotVu=DotVn(3);%高度通道单独初始化
 %% 开始读取观测
 for i=1:nepoch
     [IMUSource,FlagRead]=fscanf(fileID,formatSpec);
@@ -77,6 +84,7 @@ for i=1:nepoch
         break
     end
     wibb=[IMUSource(5);IMUSource(6);IMUSource(7)];
+    fb=[IMUSource(2);IMUSource(3);IMUSource(4)];
     ResOffer.time(i)=IMUSource(1);
     %% 更新姿态
     
@@ -108,12 +116,13 @@ for i=1:nepoch
                 ResOffer(i,2:4)=ResOffer(i-DeltaTOfTbn,2:4);
             end
         end
+        fn=Tbn*fb;
     end
     %% 更新速度
     
     if mod(ResOffer.time(i),DeltaTOfV)==0
-        fb=[IMUSource(2);IMUSource(3);IMUSource(4)];
-        fn=Tbn*fb;
+
+
         %二阶龙格库塔法更新速度
         K1=DotVn;
         wenn=[  -(vn(2)+K1(2)*DeltaTOfV*DeltaT)/(Rm+h);
@@ -128,7 +137,7 @@ for i=1:nepoch
         DotVn=fn-cross(2*wien+wenn,vn)+[0;0;-g];
         ResOffer.ve(i)=vn(1);
         ResOffer.vn(i)=vn(2);
-        ResOffer.vu(i)=vn(3);
+
     end
     %% 更新经纬度
     
@@ -155,6 +164,22 @@ for i=1:nepoch
         FlagMiddleRefresh=0;
     end
     
+    %% 更新高度通道
+    if mod(ResOffer.time(i),DeltaTOfH)==0
+        index_hc=find(high_c.time==ResOffer.time(i));
+        if size(index_hc)==1
+            hc=high_c.h(index_hc);
+            %一阶欧拉法更新高度
+            h=h+(vu-K_one*(h-hc))*DeltaTOfH*DeltaT;
+            ResOffer.h(i)=h;
+            vu=vu+(DotVu-K_two*(h-hc))*DeltaTOfH*DeltaT;
+            ResOffer.vu(i)=vu;
+            DotVu=fn(3)+(2*wien(2)+wenn(2))*vn(1)-(2*wien(1)+wenn(1))*vn(2)-AccuG(lati,h);
+            vn(3)=vu;
+            DotVn(3)=DotVu;
+            %此处若size(index_hc)==1不成立，则下次数值积分时其实步长就不再是DeltaTOfH*DeltaT，应当累加，此处暂且不考虑该情况
+        end
+    end
 end
 %输出角度以度为单位    
 ResOffer.psi=ResOffer.psi*180/pi;
@@ -164,7 +189,7 @@ ResOffer.lati=ResOffer.lati*180/pi;
 ResOffer.longti=ResOffer.longti*180/pi;
 save('ResOfWibbToAttitude','ResOffer');
 
-%% 比对程序WibbToAttitude计算得到的姿态与ins_c.txt中的参考姿态数据
+%% 比对程序WibbToAttitude计算得到的结果与ins_c.txt中的参考姿态数据
 INSSource=imporINSCtfile('E:\Documents\惯导实验\data20110913\ins_c.txt');
 index=(ResOffer.psi~=0);
 subplot(3,3,1)
@@ -182,6 +207,7 @@ plot(ResOffer.time(index),ResOffer.gama(index),'.');
 hold on
 plot(INSSource.time,INSSource.gama,'.r')
 hold off
+
 index_v=(ResOffer.ve~=0);
 subplot(3,3,4)
 plot(ResOffer.time(index_v),ResOffer.ve(index_v),'.');
@@ -193,6 +219,13 @@ plot(ResOffer.time(index_v),ResOffer.vn(index_v),'.');
 hold on
 plot(INSSource.time,INSSource.Vn,'.r')
 hold off
+index_vu=(ResOffer.vu~=0);
+subplot(3,3,6)
+plot(ResOffer.time(index_vu),ResOffer.vu(index_vu),'.');
+hold on
+plot(INSSource.time,INSSource.Vu,'.r')
+hold off
+
 index_p=(ResOffer.lati~=0);
 subplot(3,3,7)
 plot(ResOffer.time(index_p),ResOffer.lati(index_p),'.');
@@ -203,6 +236,12 @@ subplot(3,3,8)
 plot(ResOffer.time(index_p),ResOffer.longti(index_p),'.');
 hold on
 plot(INSSource.time,INSSource.longti,'.r')
+hold off
+index_h=(ResOffer.h~=0);
+subplot(3,3,9)
+plot(ResOffer.time(index_h),ResOffer.h(index_h),'.');
+hold on
+plot(INSSource.time,INSSource.high,'.r')
 hold off
 
 
